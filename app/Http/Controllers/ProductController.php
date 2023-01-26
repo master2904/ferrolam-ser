@@ -12,15 +12,24 @@ class ProductController extends Controller
         $product = Product::select("*")->orderBy("nombre", "asc")->get();
         return response()->json($product,200);
     }
+    public function listado($id)
+    {
+        $product=Product::where('lugar',$id)->orderBy("nombre","asc")->get();
+        
+        // $product = Product::select("*")->orderBy("nombre", "asc")->where("detalle",0)->get();
+        return response()->json($product,200);
+    }
 
     public function store(Request $request)
     {
+        // return response()->json($request["lugar"]);
+        $lugar=$request['lugar'];
         $request->validate([
             'nombre' => 'required',
             'imagen' => 'required',
         ]);
         Product::create($request->all());
-        return $this->index();
+        return $this->listado($lugar);
     }
 
     public function show($id)
@@ -30,15 +39,18 @@ class ProductController extends Controller
     public function update(Request $request, $id)
     {
         $producto=Product::find($id);
+        $lugar=$request['lugar'];
         if (!$producto) 
             return response()->json("Este Producto no existe",400);
         $producto->update($request->all());
-        return $this->index();
+        return $this->listado($lugar);
     }
 
     public function destroy($id)
     {
-        Product::find($id)->delete();
-        return $this->index();
+        $p=Product::find($id);
+        $lugar=$p['lugar'];
+        $p->delete();
+        return $this->listado($lugar);
     }
 }
